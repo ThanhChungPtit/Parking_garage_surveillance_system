@@ -1,0 +1,269 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #1e1e2d;
+  color: white;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+h1 {
+  text-align: center;
+  color: #00d2ff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+#login-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1e1e2d;
+  position: absolute;
+  z-index: 1000;
+}
+.login-box {
+  background-color: #27293d;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  width: 350px;
+}
+.login-box h2 {
+  color: #00d2ff;
+  margin-bottom: 20px;
+}
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #2b3553;
+  background-color: #1e1e2d;
+  color: white;
+  border-radius: 5px;
+  outline: none;
+  box-sizing: border-box;
+}
+#btnLogin {
+  width: 100%;
+  padding: 12px;
+  background-image: linear-gradient(to bottom left, #e14eca, #ba54f5, #e14eca);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+#btnLogin:hover {
+  opacity: 0.8;
+}
+
+#app-container {
+  display: none;
+  width: 100%;
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #27293d;
+  padding: 20px;
+  box-sizing: border-box;
+  display: none;
+  border-right: 1px solid #444;
+}
+.sidebar h3 {
+  color: #f39c12;
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+.menu-item {
+  display: block;
+  padding: 12px 15px;
+  color: white;
+  text-decoration: none;
+  margin-bottom: 10px;
+  background-color: #1e1e2d;
+  border-radius: 5px;
+  transition: 0.3s;
+  font-weight: bold;
+  cursor: pointer;
+}
+.menu-item:hover {
+  background-color: #e14eca;
+}
+.menu-item.active {
+  background-color: #00d2ff;
+  color: #1e1e2d;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.user-info {
+  font-size: 18px;
+  color: #00ff88;
+  font-weight: bold;
+}
+.btn-logout {
+  padding: 8px 15px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* === CSS CỦA CÁC TAB === */
+.tab-content {
+  display: none;
+  animation: fadeIn 0.5s;
+}
+.tab-content.active {
+  display: block;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dashboard */
+.dashboard-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.map-section {
+  flex: 1;
+  min-width: 300px;
+  background: #2b2b40;
+  padding: 20px;
+  border-radius: 10px;
+}
+#parking-lot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.spot {
+  width: 100px;
+  height: 140px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.empty {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+  color: white;
+  border: 2px solid #00ff88;
+}
+.full {
+  background: linear-gradient(135deg, #cb2d3e, #ef473a);
+  color: white;
+  border: 2px solid #ff4444;
+}
+.info-section {
+  flex: 2;
+  min-width: 450px;
+  background: #2b2b40;
+  padding: 20px;
+  border-radius: 10px;
+}
+.btn-scan {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* CSS Cho các bảng Quản lý CRUD */
+.crud-container {
+  background: #2b2b40;
+  padding: 20px;
+  border-radius: 10px;
+}
+.crud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.btn-add {
+  background: #00ff88;
+  color: #1e1e2d;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-add:hover {
+  background: #00cc6a;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #444;
+}
+th {
+  color: #00d2ff;
+}
+.btn-edit {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+.btn-delete {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}

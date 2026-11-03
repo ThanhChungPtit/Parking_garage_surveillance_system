@@ -1,0 +1,9 @@
+build/
+sdkconfig
+sdkconfig.old
+tempCodeRunnerFile.c
+target/
+paho*/
+.vscode/
+.idea/
+*.db

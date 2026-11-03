@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Bãi Xe IoT</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="login-container">
+      <div class="login-box">
+        <h2>ĐĂNG NHẬP HỆ THỐNG</h2>
+        <div class="input-group">
+          <input type="text" id="username" placeholder="Tên đăng nhập" />
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Mật khẩu" />
+        </div>
+        <button id="btnLogin" onclick="handleLogin()">Đăng nhập</button>
+        <p
+          id="login-error"
+          style="
+            color: #ff4d4d;
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+          "
+        ></p>
+      </div>
+    </div>
+
+    <div id="app-container">
+      <div id="sidebar" class="sidebar">
+        <h3>MENU QUẢN LÝ</h3>
+        <div
+          class="menu-item active"
+          onclick="switchTab('tab-dashboard', this)"
+        >
+          Dashboard Bãi Xe
+        </div>
+        <div class="menu-item" onclick="switchTab('tab-users', this)">
+          Quản Lý Nhân Sự
+        </div>
+        <div class="menu-item" onclick="switchTab('tab-rfid', this)">
+          Quản Lý Thẻ RFID
+        </div>
+        <div class="menu-item" onclick="switchTab('tab-spots', this)">
+          Quản Lý Vị Trí Đỗ
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="top-bar">
+          <h1>Hệ Thống Quản Lý Bãi Đỗ Xe IoT</h1>
+          <div>
+            <span id="welcome-text" class="user-info"></span>
+            <button
+              class="btn-logout"
+              onclick="handleLogout()"
+              style="margin-left: 15px"
+            >
+              Đăng Xuất
+            </button>
+          </div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-content active">
+          <div class="dashboard-grid">
+            <div class="map-section">
+              <h2>Sơ Đồ Bãi Xe</h2>
+              <div id="parking-lot"></div>
+            </div>
+            <div class="info-section">
+              <div
+                style="
+                  display: flex;
+                  gap: 15px;
+                  margin-bottom: 20px;
+                  width: 100%;
+                "
+              >
+                <button
+                  id="btn-gate-in"
+                  class="btn-scan"
+                  style="flex: 1; margin: 0; background-color: #e67e22"
+                  onclick="toggleBarrier('in', this)"
+                >
+                  Mở Barrie đường vào
+                </button>
+
+                <button
+                  id="btn-gate-out"
+                  class="btn-scan"
+                  style="flex: 1; margin: 0; background-color: #e74c3c"
+                  onclick="toggleBarrier('out', this)"
+                >
+                  Mở Barrie đường ra
+                </button>
+              </div>
+              <h2>Lịch Sử Ra Vào Gần Nhất</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã Thẻ</th>
+                    <th>Giờ Vào</th>
+                    <th>Giờ Ra</th>
+                    <th>Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table"></tbody>
+              </table>
+
+              <div
+                class="chart-container"
+                style="
+                  margin-top: 30px;
+                  background: #1e1e2d;
+                  padding: 15px;
+                  border-radius: 8px;
+                "
+              >
+                <h2 style="text-align: center; color: #f39c12">
+                  Thống Kê Doanh Thu Theo Ngày
+                </h2>
+                <canvas id="revenueChart" height="100"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-users" class="tab-content">
+          <div class="crud-container">
+            <div class="crud-header">
+              <h2>Danh Sách Nhân Viên & Quản Trị</h2>
+              <button class="btn-add" onclick="addNewUser()">
+                Thêm Nhân Viên
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên đăng nhập</th>
+                  <th>Họ và Tên</th>
+                  <th>Quyền (Role)</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="users-table">
+                <tr>
+                  <td>1</td>
+                  <td>admin</td>
+                  <td>Quan Tri Viên</td>
+                  <td>
+                    <span style="color: #ff4d4d; font-weight: bold">ADMIN</span>
+                  </td>
+                  <td>
+                    <button class="btn-edit">Sửa</button>
+                    <button class="btn-delete">Khóa</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>baove1</td>
+                  <td>Trần Văn Trực</td>
+                  <td>
+                    <span style="color: #00ff88; font-weight: bold">STAFF</span>
+                  </td>
+                  <td>
+                    <button class="btn-edit">Sửa</button>
+                    <button class="btn-delete">Khóa</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-rfid" class="tab-content">
+          <div class="crud-container">
+            <div class="crud-header">
+              <h2>💳 Danh Sách Thẻ RFID Đã Đăng Ký</h2>
+              <button class="btn-add" onclick="addNewRfidCard()">
+                Gán Thẻ Mới
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Mã Thẻ (UID)</th>
+                  <th>Trạng Thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="rfid-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-spots" class="tab-content">
+          <div class="crud-container">
+            <div class="crud-header">
+              <h2>Danh Sách Vị Trí Đỗ Xe</h2>
+              <button class="btn-add" onclick="addNewSpot()">
+                Quy Hoạch Thêm Ô Mới
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên Ô Đỗ</th>
+                  <th>Mã Cảm Biến</th>
+                  <th>Trạng Thái Hiện Tại</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="manage-spots-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="users.js"></script>
+    <script src="rfid.js"></script>
+    <script src="spots.js"></script>
+    <script src="history.js"></script>
+    <script src="barrier.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
