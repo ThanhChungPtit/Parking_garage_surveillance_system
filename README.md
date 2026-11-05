@@ -1,4 +1,4 @@
-# Hệ thống giám sát nhà để xe thông minh
+# Hệ thống giám sát nhà để xe
 
 Dự án IoT quản lý nhà để xe nhỏ gồm **firmware ESP32** (cảm biến ô đỗ, thẻ RFID, barie, cảnh báo cháy) và **web quản lý Spring Boot**. Hai phần giao tiếp với nhau qua **MQTT**.
 
