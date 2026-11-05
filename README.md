@@ -69,11 +69,11 @@ Sơ đồ gồm ESP32 ở trung tâm, các module cảm biến hồng ngoại (V
 | Thiết bị                    | Chân ESP32                                                                  |
 | --------------------------- | --------------------------------------------------------------------------- |
 | LCD 16x2 I2C (địa chỉ 0x27) | SDA: GPIO21, SCL: GPIO22                                                    |
-| RFID MFRC522 (SPI)          | SCK: GPIO18, MOSI: GPIO23, MISO: GPIO19, các chân điều khiển: GPIO17, GPIO5 |
+| RFID MFRC522 (SPI)          | SCK: GPIO18, MOSI: GPIO23, MISO: GPIO19, RST: GPIO17, CS: GPIO5 |
 | Servo cổng vào              | GPIO2                                                                       |
 | Servo cổng ra               | GPIO4                                                                       |
 | Cảm biến ô đỗ 1, 2, 3       | GPIO14, GPIO26, GPIO27                                                      |
-| DHT11                       | Chân `DHT11_PIN` (xem `dht.h`)                                              |
+| DHT11                       | Chân `DHT11_PIN` (GPIO_25)                                              |
 
 Lưu ý: GPIO2 và GPIO5 là chân strapping của ESP32. Nếu board không boot được khi đã nối thiết bị thì rút tạm các chân này ra.
 
@@ -184,7 +184,7 @@ Các thông số cấu hình ở đầu file `sensor_system.c`:
 
 | Macro                                  | Mặc định | Ý nghĩa                              |
 | -------------------------------------- | -------- | ------------------------------------ |
-| `DHT_TEMP_LIMIT`                       | 35.0     | Ngưỡng nhiệt độ báo cháy (°C)        |
+| `DHT_TEMP_LIMIT`                       | 40.0     | Ngưỡng nhiệt độ báo cháy (°C)        |
 | `GATE_OPEN_TIME_MS`                    | 4000     | Thời gian barie mở trước khi tự đóng |
 | `PARK_SAMPLE_COUNT` / `PARK_THRESHOLD` | 30 / 24  | Lọc nhiễu cảm biến ô đỗ              |
 
@@ -199,7 +199,7 @@ Các thông số cấu hình ở đầu file `sensor_system.c`:
 
 **Mở cổng thủ công:** bảo vệ đăng nhập web, chọn mở cổng vào hoặc cổng ra, web gửi lệnh MQTT tương ứng tới ESP32.
 
-**Cảnh báo cháy:** nhiệt độ từ 35°C trở lên thì ESP32 mở cả hai cổng, hiện cảnh báo trên LCD và gửi `FIRE`. Khi nhiệt độ giảm xuống dưới ngưỡng, cổng đóng lại và hệ thống hoạt động bình thường.
+**Cảnh báo cháy:** nhiệt độ từ 40°C trở lên thì ESP32 mở cả hai cổng, hiện cảnh báo trên LCD và gửi `FIRE`. Khi nhiệt độ giảm xuống dưới ngưỡng, cổng đóng lại và hệ thống hoạt động bình thường.
 
 ## Hạn chế đã biết
 
