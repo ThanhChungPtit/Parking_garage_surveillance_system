@@ -1,10 +1,11 @@
-# Hệ thống giám sát nhà để xe
+# Hệ thống giám sát nhà để xe thông minh
 
 Dự án IoT quản lý nhà để xe nhỏ gồm **firmware ESP32** (cảm biến ô đỗ, thẻ RFID, barie, cảnh báo cháy) và **web quản lý Spring Boot**. Hai phần giao tiếp với nhau qua **MQTT**.
 
 ## Tính năng
 
 ### Thiết bị (ESP32)
+
 - **Quẹt thẻ RFID (MFRC522):** gửi UID lên server, server quyết định cho xe vào hay ra.
 - **Điều khiển 2 barie bằng servo:** cổng vào và cổng ra, tự đóng sau 4 giây.
 - **Giám sát 3 ô đỗ:** cảm biến hồng ngoại có lọc nhiễu (lấy mẫu 30 lần, ngưỡng 24), gửi trạng thái từng ô lên server.
@@ -12,6 +13,7 @@ Dự án IoT quản lý nhà để xe nhỏ gồm **firmware ESP32** (cảm bi�
 - **Màn hình LCD 16x2:** hiển thị trạng thái ô đỗ, nhiệt độ, độ ẩm; hiện `full` khi hết chỗ.
 
 ### Web quản lý
+
 - **Xử lý thẻ RFID:** tự xác định xe **vào** hay **ra** dựa vào database, tính tiền khi xe ra, rồi ra lệnh mở barie tương ứng.
 - **Người dùng thường (bảo vệ) có thể:**
   - Xem trạng thái các ô đỗ (trống hoặc có xe), cập nhật theo thời gian thực từ cảm biến.
@@ -21,13 +23,12 @@ Dự án IoT quản lý nhà để xe nhỏ gồm **firmware ESP32** (cảm bi�
 
 ## Kiến trúc
 
-```
- [Cảm biến ô đỗ] [RFID] [DHT11]               [Web Spring Boot]
-          \         |      /                     |         \
-           +---- ESP32 (FreeRTOS) ---MQTT---  Broker ---  MySQL
-                 |         |                 (emqx)
-              [LCD]   [Servo x2]
-```
+![Sơ đồ kiến trúc hệ thống](docs/architecture.png)
+
+- **Tầng thiết bị:** ESP32 nhận dữ liệu từ DHT11, cảm biến hồng ngoại (IR) và đầu đọc RFID; điều khiển servo (barie) và hiển thị trên LCD 16x2.
+- **Tầng giao tiếp:** ESP32 kết nối Wi-Fi và trao đổi hai chiều với MQTT Broker.
+- **Tầng máy chủ:** Backend nhận và gửi MQTT, lưu dữ liệu vào database qua JDBC.
+- **Tầng giao diện:** Web Interface giao tiếp với Backend qua HTTP/HTTPS.
 
 ## Cấu trúc thư mục
 
@@ -37,7 +38,7 @@ BTL_HTCB/
 │   ├── components/           Driver: lcd, servo, mfrc522, dht, wifi, mqtt, spi
 │   └── main/sensor_system.c  Chương trình chính (các task FreeRTOS)
 ├── Web_Server/               Web quản lý (Spring Boot + Maven)
-│   ├── database/             4 bảng (parking_history,parking_spot, rfid_cards, users)
+│   ├── database/             File SQL của 4 bảng
 │   └── src/main/java/com/baidoxe/parking_iot/
 │       ├── controller/       REST controller (RFID, ô đỗ, lịch sử, mở cổng...)
 │       ├── entity/           Các entity JPA
@@ -48,23 +49,31 @@ BTL_HTCB/
 
 ## Công nghệ
 
-| Phần | Công nghệ |
-|---|---|
-| Firmware | ESP32, ESP-IDF v5.5.x, FreeRTOS, C |
-| Web | Java, Spring Boot, Spring Data JPA, Maven |
-| Giao tiếp | MQTT (Eclipse Paho), broker `broker.emqx.io` |
-| Cơ sở dữ liệu | MySQL (InnoDB, utf8mb4) |
+| Phần          | Công nghệ                                    |
+| ------------- | -------------------------------------------- |
+| Firmware      | ESP32, ESP-IDF v5.5.x, FreeRTOS, C           |
+| Web           | Java, Spring Boot, Spring Data JPA, Maven    |
+| Giao tiếp     | MQTT (Eclipse Paho), broker `broker.emqx.io` |
+| Cơ sở dữ liệu | MySQL (InnoDB, utf8mb4)                      |
 
 ## Phần cứng
 
-| Thiết bị | Chân ESP32 |
-|---|---|
-| LCD 16x2 I2C (địa chỉ 0x27) | SDA: GPIO21, SCL: GPIO22 |
-| RFID MFRC522 (SPI) | SCK: GPIO18, MOSI: GPIO23, MISO: GPIO19, các chân điều khiển: GPIO17 (RST), GPIO5(CS) |
-| Servo cổng vào | GPIO2 |
-| Servo cổng ra | GPIO4 |
-| Cảm biến ô đỗ 1, 2, 3 | GPIO14, GPIO26, GPIO27 |
-| DHT11 | GPIO_25) |
+### Sơ đồ đấu nối
+
+![Sơ đồ đấu nối](docs/wiring.png)
+
+Sơ đồ gồm ESP32 ở trung tâm, các module cảm biến hồng ngoại (VT1 đến VT4), cảm biến DHT11, đầu đọc RFID RC522, màn hình LCD 16x2 I2C và 2 servo (cổng vào, cổng ra).
+
+### Bảng chân kết nối
+
+| Thiết bị                    | Chân ESP32                                                                  |
+| --------------------------- | --------------------------------------------------------------------------- |
+| LCD 16x2 I2C (địa chỉ 0x27) | SDA: GPIO21, SCL: GPIO22                                                    |
+| RFID MFRC522 (SPI)          | SCK: GPIO18, MOSI: GPIO23, MISO: GPIO19, các chân điều khiển: GPIO17, GPIO5 |
+| Servo cổng vào              | GPIO2                                                                       |
+| Servo cổng ra               | GPIO4                                                                       |
+| Cảm biến ô đỗ 1, 2, 3       | GPIO14, GPIO26, GPIO27                                                      |
+| DHT11                       | Chân `DHT11_PIN` (xem `dht.h`)                                              |
 
 Lưu ý: GPIO2 và GPIO5 là chân strapping của ESP32. Nếu board không boot được khi đã nối thiết bị thì rút tạm các chân này ra.
 
@@ -106,12 +115,12 @@ erDiagram
     }
 ```
 
-| Bảng | Vai trò |
-|---|---|
-| `users` | Tài khoản đăng nhập web, vai trò `ADMIN` hoặc `STAFF` (bảo vệ) |
-| `parking_spots` | Ô đỗ, liên kết cảm biến qua `sensor_id` (1 đến 3) |
-| `rfid_cards` | Thẻ RFID, `card_id` là UID thẻ, loại `GUEST` hoặc `VIP`, `is_active` cho biết thẻ còn hiệu lực, tạo thẻ mới bởi ADMIN |
-| `parking_history` | Lượt gửi xe: giờ vào, giờ ra, phí, trạng thái (`PARKING` khi xe còn trong bãi) |
+| Bảng              | Vai trò                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| `users`           | Tài khoản đăng nhập web, vai trò `ADMIN` hoặc `STAFF` (bảo vệ)                                 |
+| `parking_spots`   | Ô đỗ, liên kết cảm biến qua `sensor_id` (1 đến 3)                                              |
+| `rfid_cards`      | Thẻ RFID, `card_id` là UID thẻ, loại `GUEST` hoặc `VIP`, `is_active` cho biết thẻ còn hiệu lực |
+| `parking_history` | Lượt gửi xe: giờ vào, giờ ra, phí, trạng thái (`PARKING` khi xe còn trong bãi)                 |
 
 Thêm thẻ mới: chèn UID thẻ (đúng như thiết bị gửi lên, 10 ký tự hex viết hoa) vào bảng `rfid_cards`.
 
@@ -119,14 +128,14 @@ Thêm thẻ mới: chèn UID thẻ (đúng như thiết bị gửi lên, 10 ký 
 
 Broker: `broker.emqx.io:1883` (broker công cộng, chỉ phù hợp để demo).
 
-| Topic | Hướng | Payload | Ý nghĩa |
-|---|---|---|---|
-| `/ptit/parking/check` | ESP32 → Web | UID thẻ | Có thẻ được quẹt |
-| `/ptit/servo/control` | Web → ESP32 | `1` hoặc `2` | Mở cổng vào / cổng ra, tự đóng sau 4 giây |
-| `/ptit/servo/emergency` | Web → ESP32 | `O1`, `C1`, `O2`, `C2` | Mở/đóng cổng vào (1) hoặc ra (2), không tự đóng |
-| `/state/park/<n>` | ESP32 → Web | `0` hoặc `1` | Trạng thái ô đỗ n (1 đến 3), web hiểu `0` là có xe |
-| `/ptit/parking/environment` | ESP32 → Web | `27.5C, 60.0%` | Nhiệt độ và độ ẩm, 2 giây một lần |
-| `/ptit/parking/alarm` | ESP32 → Web | `FIRE` | Phát hiện cháy |
+| Topic                       | Hướng       | Payload                | Ý nghĩa                                            |
+| --------------------------- | ----------- | ---------------------- | -------------------------------------------------- |
+| `/ptit/parking/check`       | ESP32 → Web | UID thẻ                | Có thẻ được quẹt                                   |
+| `/ptit/servo/control`       | Web → ESP32 | `1` hoặc `2`           | Mở cổng vào / cổng ra, tự đóng sau 4 giây          |
+| `/ptit/servo/emergency`     | Web → ESP32 | `O1`, `C1`, `O2`, `C2` | Mở/đóng cổng vào (1) hoặc ra (2), không tự đóng    |
+| `/state/park/<n>`           | ESP32 → Web | `0` hoặc `1`           | Trạng thái ô đỗ n (1 đến 3), web hiểu `0` là có xe |
+| `/ptit/parking/environment` | ESP32 → Web | `27.5C, 60.0%`         | Nhiệt độ và độ ẩm, 2 giây một lần                  |
+| `/ptit/parking/alarm`       | ESP32 → Web | `FIRE`                 | Phát hiện cháy                                     |
 
 ## Hướng dẫn cài đặt và chạy
 
@@ -173,15 +182,16 @@ Trước khi build, sửa tên và mật khẩu Wi-Fi trong `main/sensor_system.
 
 Các thông số cấu hình ở đầu file `sensor_system.c`:
 
-| Macro | Mặc định | Ý nghĩa |
-|---|---|---|
-| `DHT_TEMP_LIMIT` | 40°C (mức ví dụ cho thầy cô hiểu) | Ngưỡng nhiệt độ báo cháy (°C) |
-| `GATE_OPEN_TIME_MS` | 4000 | Thời gian barie mở trước khi tự đóng |
-| `PARK_SAMPLE_COUNT` / `PARK_THRESHOLD` | 30 / 24 | Lọc nhiễu cảm biến ô đỗ |
+| Macro                                  | Mặc định | Ý nghĩa                              |
+| -------------------------------------- | -------- | ------------------------------------ |
+| `DHT_TEMP_LIMIT`                       | 35.0     | Ngưỡng nhiệt độ báo cháy (°C)        |
+| `GATE_OPEN_TIME_MS`                    | 4000     | Thời gian barie mở trước khi tự đóng |
+| `PARK_SAMPLE_COUNT` / `PARK_THRESHOLD` | 30 / 24  | Lọc nhiễu cảm biến ô đỗ              |
 
 ## Luồng hoạt động
 
 **Xe vào/ra bằng thẻ**
+
 1. Xe quẹt thẻ, ESP32 gửi UID lên `/ptit/parking/check`.
 2. Web tra bảng `rfid_cards` và `parking_history`: nếu thẻ chưa có lượt gửi đang mở thì là xe vào, ngược lại là xe ra và tính phí.
 3. Nếu hợp lệ, web gửi `1` (vào) hoặc `2` (ra) lên `/ptit/servo/control`.
@@ -189,8 +199,13 @@ Các thông số cấu hình ở đầu file `sensor_system.c`:
 
 **Mở cổng thủ công:** bảo vệ đăng nhập web, chọn mở cổng vào hoặc cổng ra, web gửi lệnh MQTT tương ứng tới ESP32.
 
-**Cảnh báo cháy:** nhiệt độ từ 40°C trở lên thì ESP32 mở cả hai cổng, hiện cảnh báo trên LCD và gửi `FIRE`. Khi nhiệt độ giảm xuống dưới ngưỡng, cổng đóng lại và hệ thống hoạt động bình thường.
+**Cảnh báo cháy:** nhiệt độ từ 35°C trở lên thì ESP32 mở cả hai cổng, hiện cảnh báo trên LCD và gửi `FIRE`. Khi nhiệt độ giảm xuống dưới ngưỡng, cổng đóng lại và hệ thống hoạt động bình thường.
 
+## Hạn chế đã biết
 
+- Dùng broker công cộng và topic không xác thực, nên ai biết topic cũng có thể gửi lệnh mở cổng.
+- Cột `password_hash` trong dữ liệu mẫu chưa được mã hóa, cần băm mật khẩu (ví dụ BCrypt) trước khi dùng thực tế.
+- DHT11 sai số lớn và hay nhiễu, nên ngưỡng báo cháy chỉ phù hợp để demo.
+- Wi-Fi và địa chỉ broker đang cấu hình trực tiếp trong source.
 
-Môn học: Hệ thống cảm biến / IoT, PTIT.
+Môn học: Hệ thống nhúng / IoT, PTIT.
